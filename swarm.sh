@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # This will run in bash on Linux, Mac, and Windows 10 Anniverary Edition
 # Default cluster:
 # - 3 manager node
@@ -16,11 +18,9 @@ PRIVATE=
 
 # Manager and worker prefix
 PREFIX=$(date "+%Y%m%dT%H%M%S")
-MANAGER=${PREFIX}-manager
-WORKER=${PREFIX}-worker
 
 function usage {
-  echo "Usage: $0 [--driver provider] [--azure-subscription-id] [--amazonec2-access-key ec2_access_key] [--amazonec2-secret-key ec2_secret_key] [--amazonec2-security-group ec2_security_group] [--do_token do_token][-m|--manager nbr_manager] [--mgr-availability mgr_avilability] [-w|--worker nbr_worker]"
+  echo "Usage: $0 [--driver provider] [--azure-subscription-id] [--amazonec2-access-key ec2_access_key] [--amazonec2-secret-key ec2_secret_key] [--amazonec2-security-group ec2_security_group] [--do_token do_token][-m|--manager nbr_manager] [--mgr-availability mgr_avilability] [-w|--worker nbr_worker] [-p|--prefix machine_prefix]"
   exit 1
 }
 
@@ -67,11 +67,18 @@ while [ "$#" -gt 0 ]; do
      AZURE_SUBSCRIPTION_ID="$2"
      shift 2
      ;;
+   --prefix|-p)
+     PREFIX="$2"
+     shift 2
+     ;;
    -h|--help)
-      usage
-      ;;
+     usage
+     ;;
   esac
 done
+
+MANAGER=${PREFIX}-manager
+WORKER=${PREFIX}-worker
 
 # Value of driver parameter's value must be among "azure", "digitalocean", "amazonec2", "virtualbox" (if no value is provided, "virtualbox" driver is used)
 if [ "$DRIVER" != "virtualbox" -a "$DRIVER" != "digitalocean" -a "$DRIVER" != "amazonec2"  -a "$DRIVER" != "azure" ];then

@@ -1,0 +1,63 @@
+version: "3.1"
+
+services:
+  cadvisor:
+    image: google/cadvisor:v0.24.1
+    deploy:
+      mode: global
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - '/:/rootfs,ro'
+      - '/var/run:/var/run'
+      - '/sys:/sys,ro'
+      - '/var/lib/docker/:/var/lib/docker,ro'
+    ports:
+      - 8080:8080
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:v0.13.0
+    deploy:
+      mode: global
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - '/proc:/host/proc'
+      - '/sys:/host/sys'
+      - '/:/rootfs'
+    command:
+      - '-collector.procfs=/host/proc'
+      - '-collector.sysfs=/host/sys'
+      - '-collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - './prometheus/:/etc/prometheus/'
+      - 'prometheus_data:/prometheus'
+    command:
+      - '-config.file=/etc/prometheus/prometheus.yml'
+      - '-storage.local.path=/prometheus'
+      - '-alertmanager.url=http://alertmanager:9093'
+      - '-storage.local.memory-chunks=100000'
+    ports:
+      - 9090:9090
+    labels:
+      org.label-schema.group: "monitoring"
+
+  grafana:
+    image: grafana/grafana
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - 3000:3000
+    networks:
+      - monitor-net
+    labels:
+      org.label-schema.group: "monitoring"
