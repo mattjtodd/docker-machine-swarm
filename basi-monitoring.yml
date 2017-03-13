@@ -54,6 +54,8 @@ services:
     image: basi/socat:${DOCKER_EXPORTER_VERSION:-v0.1.0}
     networks:
       - monitoring
+    ports:
+      - "4999:4999"
     deploy:
       mode: global
       resources:
