@@ -166,9 +166,9 @@ function create_manager {
     echo "-> creating Docker host for manager $i (please wait)"
     # Azure needs Stdout for authentication. Workaround: Show Stdout on first Manager.
     if [ "$DRIVER" == "azure" ] && [ "$i" -eq 1 ];then
-      docker-machine create --driver $DRIVER $ADDITIONAL_PARAMS ${MANAGER}$i
+      docker-machine create --driver $DRIVER $ADDITIONAL_PARAMS --engine-opt experimental --engine-opt "metrics-addr=0.0.0.0:4999" ${MANAGER}$i
     else
-      docker-machine create --driver $DRIVER $ADDITIONAL_PARAMS ${MANAGER}$i 1>/dev/null
+      docker-machine create --driver $DRIVER $ADDITIONAL_PARAMS --engine-opt experimental --engine-opt "metrics-addr=0.0.0.0:4999" ${MANAGER}$i 1>/dev/null
     fi
   done
 }
@@ -177,7 +177,7 @@ function create_manager {
 function create_workers {
   for i in $(seq 1 $NBR_WORKER); do
     echo "-> creating Docker host for worker $i (please wait)"
-    docker-machine create --driver $DRIVER $ADDITIONAL_PARAMS ${WORKER}$i 1>/dev/null
+    docker-machine create --driver $DRIVER $ADDITIONAL_PARAMS --engine-opt experimental --engine-opt "metrics-addr=0.0.0.0:4999" ${WORKER}$i 1>/dev/null
   done
 }
 
